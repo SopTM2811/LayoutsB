@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #F7F8FA;
+    --card: #FFFFFF;
+    --border: #E4E7ED;
+    --primary: #2563EB;
+    --primary-hover: #1D4ED8;
+    --primary-soft: #EFF6FF;
+    --text: #111827;
+    --text-muted: #6B7280;
+    --text-light: #9CA3AF;
+    --success: #059669;
+    --error: #DC2626;
+    --warning-soft: #FFFBEB;
+    --warning-border: #FDE68A;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.09);
+  }
+
+  body { background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--text); }
+
+  .form-container { max-width: 520px; margin: 0 auto; padding-top: 8px; }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.85rem; color: var(--text-muted); text-decoration: none;
+    margin-bottom: 20px; transition: color 0.13s;
+  }
+  .back-link:hover { color: var(--primary); text-decoration: none; }
+
+  /* Identity card (read-only info) */
+  .identity-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .avatar-lg {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+    border: 2px solid #BFDBFE;
+  }
+
+  .identity-info .name {
+    font-size: 1rem; font-weight: 600; color: var(--text); margin: 0 0 2px;
+  }
+  .identity-info .id-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem; color: var(--text-light);
+    background: #F3F4F6; border-radius: 4px; padding: 1px 6px;
+    display: inline-block;
+  }
+
+  .cuentas-list { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .cuenta-pill {
+    font-family: 'DM Mono', monospace; font-size: 0.75rem;
+    background: #EFF6FF; color: #2563EB;
+    border: 1px solid #BFDBFE; border-radius: 99px;
+    padding: 3px 10px;
+  }
+
+  /* Form card */
+  .form-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+  }
+
+  .form-card-header {
+    padding: 20px 28px 16px;
+    border-bottom: 1px solid #F3F4F6;
+    background: #FAFBFF;
+  }
+
+  .form-card-header h2 {
+    font-size: 1.1rem; font-weight: 600; color: var(--text);
+    margin: 0; letter-spacing: -0.02em;
+    display: flex; align-items: center; gap: 9px;
+  }
+  .form-card-header h2 svg {
+    width: 20px; height: 20px; color: var(--primary);
+    background: var(--primary-soft); padding: 4px;
+    border-radius: 6px; box-sizing: content-box;
+  }
+  .form-card-header p {
+    font-size: 0.82rem; color: var(--text-muted);
+    margin: 5px 0 0; padding-left: 34px;
+  }
+
+  .form-body { padding: 26px 28px; }
+
+  .field-group { margin-bottom: 0; }
+
+  .field-label {
+    display: block; font-size: 0.82rem; font-weight: 600;
+    color: var(--text); margin-bottom: 7px; letter-spacing: 0.01em;
+  }
+  .field-label span.required { color: var(--error); margin-left: 3px; }
+
+  .field-input {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    color: var(--text); background: var(--card);
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+    box-sizing: border-box;
+  }
+  .field-input:focus {
+    border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+  .field-input::placeholder { color: var(--text-light); }
+
+  /* Warning note */
+  .readonly-note {
+    display: flex; align-items: flex-start; gap: 9px;
+    background: var(--warning-soft); border: 1.5px solid var(--warning-border);
+    border-radius: var(--radius-sm); padding: 10px 14px; margin-top: 18px;
+    font-size: 0.8rem; color: #92400E; line-height: 1.5;
+  }
+  .readonly-note svg { width: 15px; height: 15px; flex-shrink: 0; margin-top: 1px; color: #D97706; }
+
+  /* Footer */
+  .form-footer {
+    padding: 18px 28px; border-top: 1px solid #F3F4F6; background: #FAFBFF;
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+
+  .btn-cancel {
+    padding: 9px 18px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--card); font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
+    font-weight: 500; color: var(--text-muted); text-decoration: none; cursor: pointer;
+    transition: all 0.13s; display: inline-flex; align-items: center;
+  }
+  .btn-cancel:hover { border-color: #CBD5E1; color: var(--text); background: #F9FAFB; text-decoration: none; }
+
+  .btn-submit {
+    padding: 9px 22px; background: var(--primary); border: none;
+    border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem; font-weight: 500; color: #fff; cursor: pointer;
+    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+    display: inline-flex; align-items: center; gap: 7px;
+    box-shadow: 0 1px 4px rgba(37,99,235,0.3);
+  }
+  .btn-submit:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 3px 10px rgba(37,99,235,0.35); }
+</style>
+
+<div class="form-container">
+
+  <a href="/beneficiarios/" class="back-link">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+    Volver a beneficiarios
+  </a>
+
+  <!-- Tarjeta de identidad (informativa) -->
+  <div class="identity-card">
+    <div class="avatar-lg">{{ beneficiario.nombre[:2]|upper }}</div>
+    <div class="identity-info">
+      <p class="name">{{ beneficiario.nombre }}</p>
+      <span class="id-badge">#{{ beneficiario.id_beneficiario }}</span>
+      {% if beneficiario.cuentas %}
+      <div class="cuentas-list">
+        {% for c in beneficiario.cuentas if c.activo %}
+        <span class="cuenta-pill">{{ c.numero_cuenta[:6] }}···{{ c.numero_cuenta[-4:] }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-header">
+      <h2>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
+        Editar beneficiario
+      </h2>
+      <p>Solo puedes modificar el nombre del beneficiario.</p>
+    </div>
+
+    <form method="post" id="formEditar">
+      <div class="form-body">
+
+        <div class="field-group">
+          <label class="field-label" for="nombre">
+            Nombre completo <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="nombre"
+            name="nombre"
+            class="field-input"
+            value="{{ beneficiario.nombre }}"
+            required
+            autocomplete="off"
+            style="text-transform: uppercase;"
+          >
+        </div>
+
+
+
+
+
+        
+
+        <div class="readonly-note">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+          Para cambiar la CLABE o banco, elimina este beneficiario y créalo de nuevo con los datos actualizados.
+        </div>
+
+      </div>
+
+      <div class="form-footer">
+        <a href="/beneficiarios/" class="btn-cancel">Cancelar</a>
+        <button type="submit" class="btn-submit">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+          Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+<script>
+  // Forzar mayúsculas en nombre
+  document.getElementById("nombre").addEventListener("input", function () {
+    const pos = this.selectionStart;
+    this.value = this.value.toUpperCase();
+    this.setSelectionRange(pos, pos);
+  });
+</script>
+
+{% endblock %}

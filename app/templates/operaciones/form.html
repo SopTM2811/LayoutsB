@@ -1,0 +1,1407 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #F4F6FA;
+    --card: #FFFFFF;
+    --border: #E2E6EF;
+    --border-focus: #3B82F6;
+    --primary: #2563EB;
+    --primary-h: #1D4ED8;
+    --primary-s: #EFF6FF;
+    --success: #059669;
+    --success-s: #ECFDF5;
+    --danger: #DC2626;
+    --danger-s: #FEF2F2;
+    --warn-s: #FFFBEB;
+    --warn-b: #FDE68A;
+    --text: #0F172A;
+    --text-2: #475569;
+    --text-3: #94A3B8;
+    --shadow-s: 0 1px 3px rgba(15, 23, 42, .06), 0 1px 2px rgba(15, 23, 42, .04);
+    --shadow-m: 0 4px 16px rgba(15, 23, 42, .08);
+    --r: 12px;
+    --r-s: 8px;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    margin: 0;
+  }
+
+  /* ── PAGE HEADER ─────────────────────────────── */
+  .ph {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .ph-title {
+    font-size: 1.45rem;
+    font-weight: 600;
+    letter-spacing: -.02em;
+    margin: 0;
+  }
+
+  .ph-sub {
+    font-size: .82rem;
+    color: var(--text-2);
+    margin: 2px 0 0;
+  }
+
+  .btn-admin {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-s);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .83rem;
+    font-weight: 500;
+    color: var(--text-2);
+    text-decoration: none;
+    transition: all .13s;
+    box-shadow: var(--shadow-s);
+  }
+
+  .btn-admin:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-s);
+    text-decoration: none;
+  }
+
+  .btn-admin svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  /* ── CONTROL PANEL ───────────────────────────── */
+  .ctrl-panel {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r);
+    box-shadow: var(--shadow-s);
+    padding: 22px 24px;
+    margin-bottom: 20px;
+  }
+
+  .ctrl-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+
+  @media (max-width: 768px) {
+    .ctrl-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .ctrl-field label {
+    display: block;
+    font-size: .76rem;
+    font-weight: 600;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 6px;
+  }
+
+  .ctrl-field select,
+  .ctrl-field input[type="text"] {
+    width: 100%;
+    padding: 9px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-s);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .88rem;
+    color: var(--text);
+    background: var(--card);
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+
+  .ctrl-field select:focus,
+  .ctrl-field input[type="text"]:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .12);
+  }
+
+  .ctrl-field .input-group {
+    display: flex;
+    gap: 0;
+  }
+
+  .ctrl-field .input-group input {
+    border-radius: var(--r-s) 0 0 var(--r-s);
+    flex: 1;
+  }
+
+  .ctrl-field .input-group .btn-new-bene {
+    padding: 9px 14px;
+    background: var(--primary);
+    border: 1.5px solid var(--primary);
+    border-radius: 0 var(--r-s) var(--r-s) 0;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .83rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .13s;
+    white-space: nowrap;
+  }
+
+  .ctrl-field .input-group .btn-new-bene:hover {
+    background: var(--primary-h);
+  }
+
+  /* Autocomplete dropdown */
+  #resultadosBeneficiario {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 0 0 var(--r-s) var(--r-s);
+    box-shadow: var(--shadow-m);
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  #resultadosBeneficiario .list-group-item {
+    padding: 9px 14px;
+    font-size: .86rem;
+    border: none;
+    border-bottom: 1px solid #F1F5F9;
+    cursor: pointer;
+    transition: background .1s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  #resultadosBeneficiario .list-group-item:hover {
+    background: var(--primary-s);
+    color: var(--primary);
+  }
+
+  #resultadosBeneficiario .list-group-item:last-child {
+    border-bottom: none;
+  }
+
+  /* Paste area */
+  .paste-area {
+    border-top: 1px dashed var(--border);
+    padding-top: 18px;
+  }
+
+  .paste-area label {
+    display: block;
+    font-size: .76rem;
+    font-weight: 600;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 6px;
+  }
+
+  .paste-area textarea {
+    width: 100%;
+    padding: 10px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-s);
+    font-family: 'DM Mono', monospace;
+    font-size: .82rem;
+    color: var(--text);
+    background: #FAFBFF;
+    outline: none;
+    resize: vertical;
+    transition: border-color .15s, box-shadow .15s;
+  }
+
+  .paste-area textarea:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .12);
+    background: var(--card);
+  }
+
+  .paste-area textarea::placeholder {
+    color: var(--text-3);
+    font-size: .8rem;
+  }
+
+  .btn-process {
+    margin-top: 10px;
+    padding: 8px 18px;
+    background: var(--success);
+    border: none;
+    border-radius: var(--r-s);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .85rem;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background .13s, transform .1s, box-shadow .13s;
+    box-shadow: 0 1px 4px rgba(5, 150, 105, .28);
+  }
+
+  .btn-process:hover {
+    background: #047857;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(5, 150, 105, .3);
+  }
+
+  .btn-process svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  /* No-registradas alert */
+  #cuentasNoRegistradas .alert {
+    background: var(--warn-s);
+    border: 1.5px solid var(--warn-b);
+    border-radius: var(--r-s);
+    padding: 14px 16px;
+    font-size: .86rem;
+    color: #92400E;
+  }
+
+  #cuentasNoRegistradas .alert ul {
+    margin: 6px 0 10px;
+    padding-left: 18px;
+  }
+
+  #cuentasNoRegistradas .alert .btn-registrar {
+    background: #D97706;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .82rem;
+    font-weight: 500;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background .13s;
+  }
+
+  #cuentasNoRegistradas .alert .btn-registrar:hover {
+    background: #B45309;
+  }
+
+  /* ── DIVIDER ─────────────────────────────────── */
+  .section-sep {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0 20px;
+    color: var(--text-3);
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+  }
+
+  .section-sep::before,
+  .section-sep::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── LAYOUT WRAPPER ──────────────────────────── */
+  .layout-wrapper {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r);
+    box-shadow: var(--shadow-s);
+    margin-bottom: 24px;
+    overflow: hidden;
+    animation: slideIn .22s ease;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .layout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 22px;
+    border-bottom: 1px solid #F1F5F9;
+    background: #FAFBFF;
+  }
+
+  .layout-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .layout-title .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    font-weight: 500;
+    background: var(--primary-s);
+    color: var(--primary);
+    border: 1px solid #BFDBFE;
+    border-radius: 99px;
+    padding: 2px 9px;
+  }
+
+  .layout-stats {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .stat-item {
+    font-size: .8rem;
+    color: var(--text-2);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .stat-item strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .stat-item.total-monto strong {
+    color: var(--success);
+  }
+
+  /* Layout header fields */
+  .layout-header-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 14px 22px;
+    border-bottom: 1px solid #F1F5F9;
+    background: #FDFEFF;
+  }
+
+  .header-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 160px;
+  }
+
+  .header-field label {
+    font-size: .72rem;
+    font-weight: 600;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  .header-field input {
+    padding: 7px 11px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .85rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+
+  .header-field input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .1);
+  }
+
+  /* Table */
+  .table-scroll {
+    overflow-x: auto;
+  }
+
+  .layout-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+  }
+
+  .layout-table thead tr {
+    background: #1E293B;
+  }
+
+  .layout-table thead th {
+    padding: 10px 12px;
+    font-size: .72rem;
+    font-weight: 500;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    white-space: nowrap;
+    text-align: left;
+  }
+
+  .layout-table thead th.th-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .layout-table thead th input[type="checkbox"] {
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+
+  .layout-table tbody tr {
+    border-bottom: 1px solid #F1F5F9;
+    transition: background .1s;
+  }
+
+  .layout-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .layout-table tbody tr:hover {
+    background: #F8FAFF;
+  }
+
+  .layout-table tbody td {
+    padding: 7px 8px;
+    vertical-align: middle;
+  }
+
+  .layout-table tbody td input {
+    width: 100%;
+    min-width: 140px;
+    padding: 6px 9px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .83rem;
+    color: var(--text);
+    background: var(--card);
+    outline: none;
+    transition: border-color .13s, box-shadow .13s;
+  }
+
+  .layout-table tbody td input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, .12);
+    background: #FAFEFF;
+  }
+
+  .layout-table tbody td input[readonly] {
+    background: #F8FAFC;
+    color: var(--text-2);
+    cursor: not-allowed;
+  }
+
+  .td-del {
+    width: 46px;
+    text-align: center;
+  }
+
+  .btn-del-row {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: none;
+    background: var(--danger-s);
+    color: var(--danger);
+    cursor: pointer;
+    font-size: .85rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .13s, color .13s;
+  }
+
+  .btn-del-row:hover {
+    background: var(--danger);
+    color: #fff;
+  }
+
+  /* Empty table state */
+  .empty-tbody td {
+    padding: 32px 20px;
+    text-align: center;
+    color: var(--text-3);
+    font-size: .86rem;
+    font-style: italic;
+  }
+
+  /* Layout action bar */
+  .layout-actions {
+    display: flex;
+    gap: 10px;
+    padding: 14px 22px;
+    border-top: 1px solid #F1F5F9;
+    background: #FAFBFF;
+  }
+
+  .btn-gen {
+    padding: 8px 18px;
+    background: var(--primary);
+    border: none;
+    border-radius: var(--r-s);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .85rem;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: background .13s, transform .1s, box-shadow .13s;
+    box-shadow: 0 1px 4px rgba(37, 99, 235, .28);
+  }
+
+  .btn-gen:hover {
+    background: var(--primary-h);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(37, 99, 235, .3);
+  }
+
+  .btn-gen svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .btn-del-layout {
+    padding: 8px 16px;
+    background: var(--card);
+    border: 1.5px solid #FECACA;
+    border-radius: var(--r-s);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .85rem;
+    font-weight: 500;
+    color: var(--danger);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all .13s;
+  }
+
+  .btn-del-layout:hover {
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+  }
+
+  .btn-del-layout svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ── MODAL ───────────────────────────────────── */
+  .modal-content {
+    border: 1.5px solid var(--border) !important;
+    border-radius: var(--r) !important;
+    box-shadow: var(--shadow-m) !important;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .modal-header {
+    border-bottom: 1px solid #F1F5F9 !important;
+    padding: 18px 22px !important;
+    background: #FAFBFF;
+  }
+
+  .modal-title {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+  }
+
+  .modal-body {
+    padding: 22px !important;
+  }
+
+  .modal-body .form-control {
+    border: 1.5px solid var(--border) !important;
+    border-radius: var(--r-s) !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: .88rem !important;
+    transition: border-color .15s, box-shadow .15s !important;
+  }
+
+  .modal-body .form-control:focus {
+    border-color: var(--border-focus) !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .1) !important;
+  }
+
+  .modal-footer {
+    border-top: 1px solid #F1F5F9 !important;
+    padding: 14px 22px !important;
+    background: #FAFBFF;
+  }
+
+  /* ── TOAST notification ──────────────────────── */
+  .toast-rack {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+  }
+
+  .toast-msg {
+    background: #1E293B;
+    color: #F8FAFC;
+    border-radius: var(--r-s);
+    padding: 11px 18px;
+    font-size: .84rem;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .22);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: toastIn .25s ease, toastOut .3s ease 2.7s forwards;
+    pointer-events: auto;
+  }
+
+  .toast-msg.success {
+    border-left: 3px solid var(--success);
+  }
+
+  .toast-msg.error {
+    border-left: 3px solid var(--danger);
+  }
+
+  @keyframes toastIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes toastOut {
+    from {
+      opacity: 1;
+    }
+
+    to {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+</style>
+
+<!-- ── TOAST RACK ──────────────────────────────── -->
+<div class="toast-rack" id="toastRack"></div>
+
+<!-- ── PAGE HEADER ────────────────────────────── -->
+<div class="ph">
+  <div>
+    <h1 class="ph-title">Generar Archivo Bancario</h1>
+    <p class="ph-sub">Selecciona banco y opción, agrega beneficiarios y descarga.</p>
+  </div>
+  <a href="/beneficiarios/" class="btn-admin">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+    </svg>
+    Beneficiarios
+  </a>
+</div>
+
+<!-- ── CONTROL PANEL ──────────────────────────── -->
+<div class="ctrl-panel">
+  <div class="ctrl-grid">
+
+    <div class="ctrl-field">
+      <label>Banco / Origen</label>
+      <select id="origen">
+        <option value="">Selecciona banco...</option>
+        {% for o in origenes %}
+        <option value="{{ o.id_origen }}">{{ o.codigo }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="ctrl-field">
+      <label>Cuenta / Layout</label>
+      <select id="opcion" disabled>
+        <option value="">Selecciona banco primero</option>
+      </select>
+    </div>
+
+    <div class="ctrl-field" style="position:relative;">
+      <label>Buscar beneficiario</label>
+      <div class="input-group">
+        <input type="text" id="buscarBeneficiario" placeholder="Nombre o cuenta...">
+        <button class="btn-new-bene" id="btnNuevoBeneficiario">+ Nuevo</button>
+      </div>
+      <div id="resultadosBeneficiario"></div>
+    </div>
+
+  </div>
+
+  <div class="paste-area">
+    <label>
+      Pegar cuentas masivas
+      <span
+        style="font-weight:400; text-transform:none; letter-spacing:0; font-size:.76rem; color:var(--text-3); margin-left:6px;">
+        — nombre, cuenta (16-18 dígitos) y monto, en cualquier orden
+      </span>
+    </label>
+    <textarea id="pegarCuentas" rows="3"
+      placeholder="JUAN PEREZ TORRES   180012345678901234   3500&#10;4152300012345678 MARIA LOPEZ GOMEZ 1200.50"></textarea>
+    <div id="cuentasNoRegistradas"></div>
+    <button class="btn-process" id="procesarCuentas">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      Agregar cuentas
+    </button>
+  </div>
+</div>
+
+<!-- ── LAYOUTS AREA ───────────────────────────── -->
+<div class="section-sep">Layouts activos</div>
+<div id="contenedor-tablas"></div>
+
+<!-- ── MODAL NUEVO BENEFICIARIO ──────────────── -->
+<div class="modal fade" id="modalBeneficiario" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Nuevo Beneficiario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label
+          style="font-size:.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px;">Nombre
+          completo</label>
+        <input type="text" id="nuevoNombre" class="form-control mb-3" placeholder="Ej. JUAN CARLOS PÉREZ TORRES"
+          style="text-transform:uppercase;">
+        <label
+          style="font-size:.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px;">CLABE
+          / Número de cuenta</label>
+        <input type="text" id="nuevoNumeroCuenta" class="form-control" placeholder="18 dígitos" inputmode="numeric"
+          style="font-family:'DM Mono',monospace;">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary" id="guardarNuevoBeneficiario">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+
+    /* ── UTILIDADES ───────────────────────────── */
+    function toast(msg, type = "success") {
+      const rack = document.getElementById("toastRack");
+      const el = document.createElement("div");
+      el.className = `toast-msg ${type}`;
+      el.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">${type === "success" ? '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>' : '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374L10.052 3.378c.866-1.5 3.032-1.5 3.898 0l7.353 12.748z"/>'}` +
+        `</svg>${msg}`;
+      rack.appendChild(el);
+      setTimeout(() => el.remove(), 3100);
+    }
+
+    let layoutsActivos = {};
+    let layoutActivo = null;
+    let cuentasPendientes = [];
+
+    /* ── RENDER PENDIENTES ────────────────────── */
+    function renderPendientes() {
+      const cont = document.getElementById("cuentasNoRegistradas");
+      cont.innerHTML = "";
+
+      if (cuentasPendientes.length === 0) return;
+
+      const card = document.createElement("div");
+      card.className = "alert";
+
+      const t = document.createElement("h6");
+      t.textContent = `${cuentasPendientes.length} cuenta(s) no registrada(s):`;
+      card.appendChild(t);
+
+      const ul = document.createElement("ul");
+      cuentasPendientes.forEach(c => {
+        const li = document.createElement("li");
+        li.textContent = `${c.cuenta}  —  ${c.nombre}`;
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
+
+      const btn = document.createElement("button");
+      btn.className = "btn-registrar";
+      btn.textContent = "Registrar beneficiarios faltantes";
+      btn.onclick = () => {
+        const r = cuentasPendientes[0];
+        document.getElementById("nuevoNumeroCuenta").value = r.cuenta;
+        document.getElementById("nuevoNombre").value = r.nombre;
+        modal?.show();
+      };
+      card.appendChild(btn);
+      cont.appendChild(card);
+    }
+
+    /* ── MODAL ────────────────────────────────── */
+    let modal = null;
+    const modalEl = document.getElementById("modalBeneficiario");
+    if (modalEl && typeof bootstrap !== "undefined") modal = new bootstrap.Modal(modalEl);
+
+    document.getElementById("btnNuevoBeneficiario")?.addEventListener("click", () => modal?.show());
+
+    document.getElementById("guardarNuevoBeneficiario")?.addEventListener("click", async () => {
+      const nombre = document.getElementById("nuevoNombre").value.trim();
+      const cuenta = document.getElementById("nuevoNumeroCuenta").value.trim();
+      if (!nombre || !cuenta) { toast("Completa nombre y cuenta", "error"); return; }
+      if (cuenta.length !== 18 || !/^\d+$/.test(cuenta)) {
+        toast("La cuenta debe tener 18 dígitos numéricos", "error");
+        return;
+      }
+
+      const data = { nombre, numero_cuenta: cuenta };
+      try {
+        const res = await fetch("/beneficiarios/api/crear", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        if (!res.ok) { const e = await res.json(); toast(e.detail || "Error al guardar", "error"); return; }
+
+        const nuevo = await res.json();
+        modal?.hide();
+
+        cuentasPendientes.shift(); // ✅ quitar el que se acaba de registrar
+        renderPendientes();        // ✅ redibujar el cuadro
+
+        if (cuentasPendientes.length > 0) {
+          const sig = cuentasPendientes[0];
+          document.getElementById("nuevoNumeroCuenta").value = sig.cuenta;
+          document.getElementById("nuevoNombre").value = sig.nombre;
+          modal?.show();
+        }
+
+        if (nuevo.beneficiario) nuevo.beneficiario = nuevo.beneficiario.toUpperCase();
+        if (layoutActivo) agregarFilaLayout(layoutActivo, nuevo);
+        document.querySelectorAll("#modalBeneficiario input").forEach(i => i.value = "");
+
+        // ✅ limpiar textarea si ya no quedan pendientes
+        if (cuentasPendientes.length === 0) {
+          document.getElementById("pegarCuentas").value = "";
+        }
+        toast("Beneficiario guardado");
+      } catch (err) { toast("Error de conexión", "error"); }
+    });
+
+    // Mayúsculas automáticas en modal
+    document.getElementById("nuevoNombre")?.addEventListener("input", function () {
+      const p = this.selectionStart; this.value = this.value.toUpperCase(); this.setSelectionRange(p, p);
+    });
+    document.getElementById("nuevoNumeroCuenta")?.addEventListener("input", function () {
+      this.value = this.value.replace(/\D/g, "");
+    });
+
+    /* ── PEGAR CUENTAS ────────────────────────── */
+    document.getElementById("procesarCuentas")?.addEventListener("click", async () => {
+      if (!layoutActivo) { toast("Selecciona un layout primero", "error"); return; }
+      const texto = document.getElementById("pegarCuentas").value;
+      const filas = texto.split("\n").map(f => f.trim()).filter(Boolean);
+      const registros = filas.map(interpretarLinea);
+      if (!registros.length) return;
+
+      const res = await fetch("/operaciones/api/buscar-cuentas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ registros })
+      });
+      const data = await res.json();
+      data.encontrados.forEach(b => {
+        const esStp = layoutsActivos[layoutActivo]?.nombre?.toLowerCase().includes("stp");
+        if (esStp) {
+          const clabe = String(b.clabe || b.cuenta_abono || "").trim();
+          if (clabe.length !== 18 || !/^\d{18}$/.test(clabe)) {
+            toast(`CLABE inválida para '${b.beneficiario}' — STP requiere 18 dígitos`, "error");
+            return;
+          }
+        }
+        agregarFilaLayout(layoutActivo, b);
+      });
+
+      cuentasPendientes = data.no_encontrados; // ✅ actualizar pendientes
+      renderPendientes();                       // ✅ redibujar siempre
+
+      if (cuentasPendientes.length === 0) {
+        toast(`${data.encontrados.length} registro(s) agregado(s)`);
+        document.getElementById("pegarCuentas").value = "";
+      }
+    });
+
+    /* ── ORIGEN → OPCIONES ───────────────────── */
+    document.getElementById("origen")?.addEventListener("change", async function () {
+      const id = this.value;
+      const sel = document.getElementById("opcion");
+      sel.innerHTML = '<option value="">Cargando...</option>';
+      sel.disabled = true;
+      if (!id) { sel.innerHTML = '<option value="">Selecciona banco primero</option>'; return; }
+
+      const res = await fetch(`/operaciones/api/opciones/${id}`);
+      const ops = await res.json();
+      sel.innerHTML = '<option value="">Selecciona layout...</option>';
+      ops.forEach(o => { const opt = document.createElement("option"); opt.value = o.id_opcion; opt.textContent = o.codigo; sel.appendChild(opt); });
+      sel.disabled = false;
+    });
+
+    /* ── OPCIÓN → LAYOUT ─────────────────────── */
+    document.getElementById("opcion")?.addEventListener("change", async function () {
+      const id = this.value; if (!id) return;
+      layoutActivo = null;
+      document.getElementById("buscarBeneficiario").value = "";
+      document.getElementById("resultadosBeneficiario").innerHTML = "";
+
+      const res = await fetch(`/operaciones/api/layout/${id}`);
+      const data = await res.json();
+      const idL = data.id_layout;
+
+      layoutsActivos[idL] = { nombre: data.codigo, tipo_layout: data.tipo_layout, header: data.header || [], detalle: data.detalle || [] };
+      if (!document.getElementById(`wrapper-${idL}`)) crearTablaLayout(idL);
+      layoutActivo = idL;
+      document.getElementById(`wrapper-${idL}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    /* ── CREAR TABLA LAYOUT ───────────────────── */
+    function crearTablaLayout(idL) {
+      const layout = layoutsActivos[idL];
+      const cont = document.getElementById("contenedor-tablas");
+
+      const wrap = document.createElement("div");
+      wrap.className = "layout-wrapper"; wrap.id = `wrapper-${idL}`;
+
+      const hdr = document.createElement("div"); hdr.className = "layout-header";
+      const titleEl = document.createElement("h4"); titleEl.className = "layout-title";
+      titleEl.innerHTML = `${layout.nombre} <span class="badge">${layout.tipo_layout || ''}</span>`;
+      hdr.appendChild(titleEl);
+
+      const statsEl = document.createElement("div"); statsEl.className = "layout-stats";
+      statsEl.innerHTML = `
+      <div class="stat-item">Registros: <strong id="registros-${idL}">0</strong></div>
+      <div class="stat-item total-monto">Total: $<strong id="total-${idL}">0.00</strong></div>`;
+      hdr.appendChild(statsEl);
+      wrap.appendChild(hdr);
+
+      if (layout.header.length > 0) {
+        const hFields = document.createElement("div"); hFields.className = "layout-header-fields";
+        layout.header.forEach(campo => {
+          const f = document.createElement("div"); f.className = "header-field";
+          const lbl = document.createElement("label"); lbl.textContent = campo.etiqueta_ui;
+          const inp = document.createElement("input");
+          inp.type = "text"; inp.name = campo.nombre_logico;
+          inp.placeholder = campo.etiqueta_ui;
+
+          // ✅ Agrega ejemplos específicos por campo
+          const ejemplos = {
+            "esuelv": "Ej: D2020032701",
+            "nombre_programa": "Ej: NOMINA ENERO",
+            "fecha_elab": "Ej: 27/02/2026",
+            "fecha_pago": "Ej: 27/02/2026",
+            "clave_cliente": "Ej: C00003",
+            "codigo_empresa": "Ej: Nomina",
+            "cliente_nombre": "Ej: Cliente fondeo (Sin Definir)",
+            "cuenta_cargo": "Ej: 65508524441",
+          };
+          if (ejemplos[campo.nombre_logico]) {
+            inp.placeholder = ejemplos[campo.nombre_logico];
+          }
+
+          f.appendChild(lbl); f.appendChild(inp); hFields.appendChild(f);
+        });
+        wrap.appendChild(hFields);
+      }
+
+      const scroll = document.createElement("div"); scroll.className = "table-scroll";
+      const tbl = document.createElement("table"); tbl.className = "layout-table"; tbl.id = `tabla-${idL}`;
+
+      const thead = document.createElement("thead");
+      const trH = document.createElement("tr");
+      layout.detalle.forEach(c => {
+        const th = document.createElement("th");
+        if (c.nombre_logico === "concepto" || c.nombre_logico === "cuenta_origen" || c.nombre_logico === "monto_maximo" ||
+          c.nombre_logico === "referencia" || c.nombre_logico === "tipo_tarjeta" || c.nombre_logico === "cuenta_carg" || c.nombre_logico === "clave_rastreo" || c.nombre_logico === "concepto2" ||
+          c.nombre_logico === "empresa" || c.nombre_logico === "tipo_cuenta") {
+          const chk = document.createElement("input"); chk.type = "checkbox"; chk.id = `auto_${c.nombre_logico}`;
+          chk.addEventListener("change", () => {
+            if (c.nombre_logico === "clave_rastreo") {
+              aplicarSecuenciaClaveRastreo(idL);
+              return;
+            }
+            if (c.nombre_logico === "concepto") {
+              const primero = document.querySelector(`#tabla-${idL} tbody tr input[name="concepto"]`);
+              if (!primero) return;
+              const valor = primero.value.trim();
+              const tieneNumero = /(.*?)(\d+)$/.test(valor);
+              if (tieneNumero) {
+                aplicarSecuenciaConcepto(idL);
+              } else {
+                aplicarValorATodasFilas(idL, "concepto");
+              }
+              return;
+            }
+            aplicarValorATodasFilas(idL, c.nombre_logico);
+          });
+
+          const lbl = document.createElement("label"); lbl.htmlFor = `auto_${c.nombre_logico}`;
+          lbl.innerHTML = `${c.etiqueta_ui} <small style="color:#64748B;font-weight:400;">Auto</small>`;
+          lbl.style.cssText = "display:flex;align-items:center;gap:6px;cursor:pointer;";
+          th.appendChild(chk); th.appendChild(lbl);
+        } else {
+          th.textContent = c.etiqueta_ui;
+        }
+        trH.appendChild(th);
+      });
+      const thDel = document.createElement("th"); thDel.textContent = ""; thDel.style.width = "46px";
+      trH.appendChild(thDel);
+      thead.appendChild(trH);
+      tbl.appendChild(thead);
+      tbl.appendChild(document.createElement("tbody"));
+      scroll.appendChild(tbl); wrap.appendChild(scroll);
+
+      const acts = document.createElement("div"); acts.className = "layout-actions";
+      const btnGen = document.createElement("button"); btnGen.className = "btn-gen";
+      btnGen.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>Generar archivo`;
+      btnGen.onclick = () => generarArchivoLayout(idL);
+
+      const btnDel = document.createElement("button"); btnDel.className = "btn-del-layout";
+      btnDel.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>Cerrar layout`;
+      btnDel.onclick = () => { if (confirm("¿Cerrar este layout?")) eliminarLayout(idL); };
+
+      acts.appendChild(btnGen); acts.appendChild(btnDel);
+      wrap.appendChild(acts);
+      cont.appendChild(wrap);
+    }
+
+    /* ── ELIMINAR LAYOUT ─────────────────────── */
+    function eliminarLayout(idL) {
+      document.getElementById(`wrapper-${idL}`)?.remove();
+      delete layoutsActivos[idL]; layoutActivo = null;
+      document.getElementById("buscarBeneficiario").value = "";
+      document.getElementById("resultadosBeneficiario").innerHTML = "";
+      document.getElementById("pegarCuentas").value = "";
+      document.getElementById("cuentasNoRegistradas").innerHTML = "";
+      document.getElementById("origen").value = "";
+      document.getElementById("opcion").innerHTML = '<option value="">Selecciona banco primero</option>';
+      document.getElementById("opcion").disabled = true;
+    }
+
+    /* ── AGREGAR FILA ────────────────────────── */
+    function agregarFilaLayout(idL, datos = null) {
+      const layout = layoutsActivos[idL];
+      const tbody = document.querySelector(`#tabla-${idL} tbody`);
+      const tr = document.createElement("tr");
+
+      layout.detalle.forEach(c => {
+        const td = document.createElement("td");
+        const inp = document.createElement("input"); inp.type = "text"; inp.name = c.nombre_logico;
+        inp.addEventListener("input", () => calcularTotal(idL));
+
+        if (c.nombre_logico === "cuenta_origen") {
+          inp.placeholder = "Ej:012345678912365478";
+          inp.maxLength = 18;
+        }
+        if (c.nombre_logico === "cuenta_beneficiario" || c.nombre_logico === "clabe") {
+          inp.placeholder = "18 dígitos";
+        }
+        if (c.nombre_logico === "concepto") {
+          inp.placeholder = "Ej: NOM 1";
+          inp.maxLength = 50;
+          inp.addEventListener("input", function () {
+            const auto = document.querySelector(`#wrapper-${idL} #auto_concepto`);
+            if (auto && auto.checked) aplicarSecuenciaConcepto(idL);
+          });
+        }
+        if (c.nombre_logico === "monto_maximo") {
+          inp.placeholder = "Ej:80000";
+          inp.maxLength = 18;
+        }
+        if (c.nombre_logico === "tipo_cuenta") {
+          inp.placeholder = "Ej:TDD";
+          inp.maxLength = 18;
+        }
+        if (c.nombre_logico === "importe") {
+          inp.placeholder = "0.00";
+          inp.addEventListener("blur", function () {
+            let val = this.value.replace(/,/g, "");
+            if (!isNaN(val) && val !== "") {
+              this.value = parseFloat(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+          });
+          inp.addEventListener("focus", function () {
+            this.value = this.value.replace(/,/g, "");
+          });
+        }
+        if (c.nombre_logico === "referencia") {
+          inp.placeholder = "Ej: 231010";
+          inp.maxLength = 7;
+          inp.addEventListener("input", function () {
+            this.value = this.value.replace(/\D/g, "").slice(0, 7);
+          });
+        }
+        if (c.nombre_logico === "beneficiario") {
+          inp.addEventListener("input", function () {
+            this.value = this.value.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z ]/g, "");
+          });
+        }
+
+        if (c.valor_fijo) { inp.value = c.valor_fijo; inp.readOnly = true; }
+        if (["beneficiario", "clabe", "rfc", "correo", "celular", "secuencia", "codigo_banco", "clave_banco", "institucion_contraparte", "banco_receptor"].includes(c.nombre_logico)) { inp.readOnly = true; }
+        if (datos?.[c.nombre_logico]) {
+          let val = datos[c.nombre_logico];
+          if (c.nombre_logico === "beneficiario") val = String(val).toUpperCase();
+          inp.value = val;
+        }
+        td.appendChild(inp); tr.appendChild(td);
+      });
+
+      const tdX = document.createElement("td"); tdX.className = "td-del";
+      const btnX = document.createElement("button"); btnX.className = "btn-del-row"; btnX.textContent = "×";
+      btnX.onclick = () => { tr.remove(); calcularTotal(idL); };
+      tdX.appendChild(btnX); tr.appendChild(tdX);
+
+      // ✅ Validación 18 dígitos para STP antes de agregar a la tabla
+      const esStp = layoutsActivos[idL]?.nombre?.toLowerCase().includes("stp");
+      if (esStp && datos?.clabe) {
+        const clabe = String(datos.clabe).replace("'", "").trim();
+        if (clabe.length !== 18 || !/^\d{18}$/.test(clabe)) {
+          toast(`CLABE inválida para '${datos.beneficiario || "beneficiario"}' — STP requiere exactamente 18 dígitos`, "error");
+          return; // ✅ no agrega la fila
+        }
+      }
+
+      tbody.appendChild(tr);
+
+      aplicarSecuenciaClaveRastreo(idL);
+
+      const cuenta = datos?.clabe || "";
+      if (cuenta.length >= 3) {
+        const prefijo = cuenta.substring(0, 3);
+        const instInp = tr.querySelector("input[name='institucion_contraparte']");
+        const recInp = tr.querySelector("input[name='banco_receptor']");
+
+        if (instInp) {
+          fetch(`/operaciones/api/banco-stp?prefijo=${prefijo}`)
+            .then(r => r.json())
+            .then(b => { instInp.value = b.codigo || ""; });
+        } else if (recInp) {
+          fetch(`/operaciones/api/banco-santander?prefijo=${prefijo}`)
+            .then(r => r.json())
+            .then(b => { recInp.value = b.clave_transfer || ""; });
+        } else {
+          fetch(`/operaciones/api/banco?prefijo=${prefijo}`)
+            .then(r => r.json())
+            .then(b => {
+              const bInp = tr.querySelector("input[name='banco_nombre']");
+              const cInp = tr.querySelector("input[name='codigo_banco']");
+              const claveInp = tr.querySelector("input[name='clave_banco']");  // ✅ Kuspit
+              if (bInp) bInp.value = b.nombre || "";
+              if (cInp) cInp.value = b.codigo || "";
+              if (claveInp) claveInp.value = b.codigo || "";  // ✅ mismo valor que codigo_banco
+            });
+        }
+      }
+      calcularTotal(idL);
+    }
+
+    /* ── CALCULAR TOTALES ────────────────────── */
+    function calcularTotal(idL) {
+      let total = 0;
+      const filas = document.querySelectorAll(`#tabla-${idL} tbody tr`);
+      filas.forEach(tr => {
+        const inp = tr.querySelector("input[name='importe']");
+        if (inp) { const n = parseFloat(inp.value.replace(/[$,]/g, "")); if (!isNaN(n)) total += n; }
+      });
+      const ts = document.getElementById(`total-${idL}`);
+      if (ts) ts.textContent = total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const rs = document.getElementById(`registros-${idL}`);
+      if (rs) rs.textContent = filas.length;
+    }
+
+    /* ── AUTO-SECUENCIA / REPLICAR ───────────── */
+    function aplicarSecuenciaClaveRastreo(idL) {
+      const auto = document.querySelector(`#wrapper-${idL} #auto_clave_rastreo`);
+      if (!auto?.checked) return;
+      const filas = document.querySelectorAll(`#tabla-${idL} tbody tr`);
+      if (!filas.length) return;
+      const primero = filas[0].querySelector("input[name='clave_rastreo']");
+      if (!primero) return;
+      const match = primero.value.match(/(.*?)(\d+)$/);
+      if (!match) return;
+      const pre = match[1], num = parseInt(match[2]), pad = match[2].length;
+      filas.forEach((f, i) => { const inp = f.querySelector("input[name='clave_rastreo']"); if (inp) inp.value = pre + String(num + i).padStart(pad, "0"); });
+    }
+
+    function aplicarValorATodasFilas(idL, campo) {
+      const auto = document.querySelector(`#wrapper-${idL} #auto_${campo}`);
+      if (!auto?.checked) return;
+      const filas = document.querySelectorAll(`#tabla-${idL} tbody tr`);
+      const val = filas[0]?.querySelector(`input[name='${campo}']`)?.value;
+      if (!val) return;
+      filas.forEach((f, i) => { if (i === 0) return; const inp = f.querySelector(`input[name='${campo}']`); if (inp) inp.value = val; });
+    }
+
+    function aplicarSecuenciaConcepto(idL) {
+      const filas = document.querySelectorAll(`#tabla-${idL} tbody tr`);
+      if (!filas.length) return;
+      const primero = filas[0].querySelector("input[name='concepto']");
+      if (!primero) return;
+      const valor = primero.value.trim();
+      const match = valor.match(/(.*?)(\d+)$/);
+      if (!match) return;
+      const prefijo = match[1];
+      let numero = parseInt(match[2]);
+      filas.forEach((fila, i) => {
+        const inp = fila.querySelector("input[name='concepto']");
+        if (inp) inp.value = prefijo + (numero + i);
+      });
+    }
+
+    /* ── GENERAR ARCHIVO ─────────────────────── */
+    async function generarArchivoLayout(idL) {
+      aplicarSecuenciaClaveRastreo(idL);
+      aplicarSecuenciaConcepto(idL);
+      const filas = document.querySelectorAll(`#tabla-${idL} tbody tr`);
+      if (!filas.length) { toast("No hay registros para generar", "error"); return; }
+
+      const registros = [];
+      filas.forEach(tr => {
+        const reg = {};
+        tr.querySelectorAll("input").forEach(inp => {
+          let val = inp.value;
+          if (inp.name === "importe" || inp.name === "monto" || inp.name === "ingreso_importe") {
+            val = val.replace(/,/g, "");
+          }
+          reg[inp.name] = val;
+        });
+        registros.push(reg);
+      });
+
+      const headerData = {};
+      document.querySelectorAll(`#wrapper-${idL} input[name]`).forEach(inp => {
+        if (!inp.closest("tbody")) headerData[inp.name] = inp.value;
+      });
+
+      const btn = document.querySelector(`#wrapper-${idL} .btn-gen`);
+      if (btn) { btn.textContent = "Generando..."; btn.disabled = true; }
+
+      try {
+        const res = await fetch("/operaciones/generar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id_layout: idL, registros, header: headerData })
+        });
+
+        if (!res.ok) {
+          try {
+            const e = await res.json();
+            toast(e.detail || "Error al generar archivo", "error");
+          } catch {
+            toast("Error al generar archivo", "error");
+          }
+          return;
+        }
+
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const cd = res.headers.get("Content-Disposition");
+        const name = cd?.match(/filename="?(.+)"?/)?.[1] || "archivo";
+        const a = document.createElement("a"); a.href = url; a.download = name; a.click();
+        window.URL.revokeObjectURL(url);
+        toast(`Archivo "${name}" descargado`);
+
+      } catch (err) {
+        toast("Error de conexión con el servidor", "error");
+        console.error(err);
+      } finally {
+        if (btn) {
+          btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>Generar archivo`;
+          btn.disabled = false;
+        }
+      }
+    }
+
+    /* ── BUSCAR BENEFICIARIO ─────────────────── */
+    let debBuscar;
+    document.getElementById("buscarBeneficiario")?.addEventListener("input", function () {
+      clearTimeout(debBuscar);
+      const q = this.value;
+      const cont = document.getElementById("resultadosBeneficiario");
+      if (!layoutActivo || q.length < 2) { cont.innerHTML = ""; return; }
+      debBuscar = setTimeout(async () => {
+        const res = await fetch(`/operaciones/api/buscar-beneficiario?q=${encodeURIComponent(q)}&id_layout=${layoutActivo}`);
+        const data = await res.json();
+        cont.innerHTML = "";
+        if (!data.length) { cont.innerHTML = `<div class="list-group-item" style="color:var(--text-3);font-style:italic;">Sin resultados</div>`; return; }
+        data.forEach(b => {
+          const item = document.createElement("button");
+          item.className = "list-group-item"; item.textContent = b.nombre;
+          item.onclick = () => { agregarFilaLayout(layoutActivo, b); cont.innerHTML = ""; document.getElementById("buscarBeneficiario").value = ""; };
+          cont.appendChild(item);
+        });
+      }, 250);
+    });
+
+    /* Cerrar dropdown al hacer clic fuera */
+    document.addEventListener("click", e => {
+      if (!e.target.closest(".ctrl-field")) document.getElementById("resultadosBeneficiario").innerHTML = "";
+    });
+
+    /* ── INTERPRETAR LÍNEA PEGADA ────────────── */
+    function interpretarLinea(linea) {
+      const partes = linea.trim().split(/\s+/);
+      let cuenta = "", importe = "", nombre = [];
+      partes.forEach(p => {
+        if (/^\d{16,18}$/.test(p)) cuenta = p;
+        else if (/^\d+(\.\d{1,2})?$/.test(p)) importe = p;
+        else nombre.push(p);
+      });
+      return { cuenta, nombre: nombre.join(" "), importe };
+    }
+
+  });
+</script>
+{% endblock %}

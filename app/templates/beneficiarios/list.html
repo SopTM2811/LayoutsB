@@ -1,0 +1,466 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #F7F8FA;
+    --card: #FFFFFF;
+    --border: #E4E7ED;
+    --primary: #2563EB;
+    --primary-hover: #1D4ED8;
+    --primary-soft: #EFF6FF;
+    --danger: #DC2626;
+    --danger-soft: #FEF2F2;
+    --danger-hover: #B91C1C;
+    --text: #111827;
+    --text-muted: #6B7280;
+    --text-light: #9CA3AF;
+    --success: #059669;
+    --success-soft: #ECFDF5;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    padding-top: 8px;
+  }
+
+  .page-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+
+  .page-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 2px 0 0 0;
+    font-weight: 400;
+  }
+
+  .btn-new {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--primary);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 9px 18px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+    box-shadow: 0 1px 4px rgba(37, 99, 235, 0.3);
+  }
+
+  .btn-new:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(37, 99, 235, 0.35);
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .btn-new svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Search bar */
+  .search-bar {
+    position: relative;
+    margin-bottom: 20px;
+  }
+
+  .search-bar input {
+    width: 100%;
+    padding: 10px 16px 10px 42px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    background: var(--card);
+    color: var(--text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .search-bar input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+
+  .search-bar svg {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    pointer-events: none;
+  }
+
+  /* Stats */
+  .stats-row {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .stat-chip {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 99px;
+    padding: 5px 14px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .stat-chip strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Table card */
+  .table-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .bene-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .bene-table thead tr {
+    background: #F9FAFB;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  .bene-table thead th {
+    padding: 12px 18px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .bene-table tbody tr {
+    border-bottom: 1px solid #F3F4F6;
+    transition: background 0.12s;
+  }
+
+  .bene-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .bene-table tbody tr:hover {
+    background: #FAFBFF;
+  }
+
+  .bene-table tbody td {
+    padding: 14px 18px;
+    font-size: 0.875rem;
+    vertical-align: middle;
+  }
+
+  /* Avatar + nombre */
+  .nombre-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+
+  .nombre-text {
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .nombre-id {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Cuentas chip */
+  .cuenta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #F3F4F6;
+    border-radius: 6px;
+    padding: 3px 9px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .cuenta-chip.clabe {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+
+  .cuenta-chip.tarjeta {
+    background: #FDF4FF;
+    color: #7C3AED;
+  }
+
+  /* Badge banco */
+  .banco-badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: #F9FAFB;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+
+  /* Acciones */
+  .action-btns {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .btn-edit,
+  .btn-del {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: all 0.13s;
+  }
+
+  .btn-edit {
+    background: var(--primary-soft);
+    color: var(--primary);
+    border-color: #BFDBFE;
+  }
+
+  .btn-edit:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    text-decoration: none;
+  }
+
+  .btn-del {
+    background: var(--danger-soft);
+    color: var(--danger);
+    border-color: #FECACA;
+  }
+
+  .btn-del:hover {
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+    text-decoration: none;
+  }
+
+  .btn-edit svg,
+  .btn-del svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+
+  .empty-state svg {
+    width: 48px;
+    height: 48px;
+    color: var(--border);
+    margin-bottom: 12px;
+  }
+
+  .empty-state p {
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  /* Filter row */
+  .filter-row {
+    display: none;
+  }
+
+  tr.hidden-row {
+    display: none;
+  }
+</style>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Beneficiarios</h1>
+    <p class="page-subtitle">Gestiona los beneficiarios registrados</p>
+  </div>
+  <!--<a href="/beneficiarios/crear" class="btn-new">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+    Nuevo beneficiario
+  </a>-->
+</div>
+
+<div class="stats-row">
+  <div class="stat-chip">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2"
+      stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+    </svg>
+    <strong>{{ beneficiarios|length }}</strong> registrados
+  </div>
+</div>
+
+<div class="search-bar">
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2"
+    stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round"
+      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0015.803 15.803z" />
+  </svg>
+  <input type="text" id="searchInput" placeholder="Buscar por nombre o cuenta...">
+</div>
+
+<div class="table-card">
+  {% if beneficiarios %}
+  <table class="bene-table" id="beneTable">
+    <thead>
+      <tr>
+        <th>Beneficiario</th>
+        <th>Cuentas</th>
+        <th>Banco</th>
+        <th style="text-align:right;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in beneficiarios %}
+      <tr data-search="{{ b.nombre|lower }}{% for c in b.cuentas %} {{ c.numero_cuenta }}{% endfor %}">
+        <td>
+          <div class="nombre-cell">
+            <div class="avatar">{{ b.nombre[:2]|upper }}</div>
+            <div>
+              <div class="nombre-text">{{ b.nombre }}</div>
+              <div class="nombre-id">#{{ b.id_beneficiario }}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          {% for c in b.cuentas if c.activo %}
+          <span
+            class="cuenta-chip {% if c.tipo_cuenta == 'CLABE' %}clabe{% elif c.tipo_cuenta == 'TARJETA' %}tarjeta{% endif %}">
+            {{ c.numero_cuenta[:6] }}···{{ c.numero_cuenta[-4:] }}
+          </span>
+          {% else %}
+          <span style="color: var(--text-light); font-size:0.8rem;">Sin cuenta</span>
+          {% endfor %}
+        </td>
+        <td>
+          {% for c in b.cuentas if c.activo %}
+          <span class="banco-badge">{{ c.institucion.nombre_institucion if c.institucion else '—' }}</span>
+          {% endfor %}
+        </td>
+        <td>
+          <div class="action-btns" style="justify-content:flex-end;">
+            <a href="/beneficiarios/editar/{{ b.id_beneficiario }}" class="btn-edit">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+              </svg>
+              Editar
+            </a>
+            <a href="/beneficiarios/eliminar/{{ b.id_beneficiario }}" class="btn-del"
+              onclick="return confirm('¿Eliminar a {{ b.nombre }}?')">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+              </svg>
+              Eliminar
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+    </svg>
+    <p>No hay beneficiarios registrados aún.</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', function () {
+      const q = this.value.toLowerCase().trim();
+      document.querySelectorAll('#beneTable tbody tr').forEach(tr => {
+        const data = tr.getAttribute('data-search') || '';
+        tr.style.display = data.includes(q) ? '' : 'none';
+      });
+    });
+  }
+</script>
+
+{% endblock %}
