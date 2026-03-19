@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #F4F6FA;
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background: #fff;
+            border: 1.5px solid #E2E6EF;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(15, 23, 42, .08);
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #0F172A;
+        }
+
+        .logo p {
+            font-size: .83rem;
+            color: #475569;
+            margin-top: 4px;
+        }
+
+        label {
+            display: block;
+            font-size: .74rem;
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #E2E6EF;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .88rem;
+            color: #0F172A;
+            outline: none;
+            margin-bottom: 18px;
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        input:focus {
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, .12);
+        }
+
+        button {
+            width: 100%;
+            padding: 11px;
+            background: #2563EB;
+            border: none;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: .9rem;
+            font-weight: 500;
+            color: #fff;
+            cursor: pointer;
+            transition: background .13s;
+        }
+
+        button:hover {
+            background: #1D4ED8;
+        }
+
+        .error {
+            background: #FEF2F2;
+            border: 1.5px solid #FECACA;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: .84rem;
+            color: #DC2626;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <div class="logo">
+            <h1>Sistema de Layouts</h1>
+            <p>Ingresa tus credenciales para continuar</p>
+        </div>
+
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="/auth/login">
+            <label>Usuario</label>
+            <input type="text" name="username" placeholder="tu_usuario" required autofocus autocomplete="off">
+
+            <label>Contraseña</label>
+            <input type="password" name="password" placeholder="••••••••" required>
+
+            <button type="submit">Iniciar sesión</button>
+        </form>
+    </div>
+</body>
+
+</html>

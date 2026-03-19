@@ -1,8 +1,9 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, TIMESTAMP
+from sqlalchemy import Column, DateTime, Integer, String, Boolean, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy.sql import func
 from app.db import Base
 from sqlalchemy import Enum
+from datetime import datetime
 
 
 # =========================
@@ -172,3 +173,14 @@ class CatCuentaBeneficiario(Base):
     activo = Column(Boolean, default=True)
     created_at = Column(TIMESTAMP, server_default=func.now())
     beneficiario = relationship("CatBeneficiario", back_populates="cuentas")
+
+
+class Usuario(Base):
+    __tablename__ = "usuarios"
+
+    id_usuario = Column(Integer, primary_key=True, index=True)
+    username = Column(String(50), unique=True, nullable=False)
+    nombre = Column(String(100), nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    activo = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
