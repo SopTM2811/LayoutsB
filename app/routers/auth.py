@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-from passlib.scontext import CryptContext
+from passlib.context import CryptContext
 from itsdangerous import URLSafeTimedSerializer
 from app.db import get_db
 from app.models import Usuario
