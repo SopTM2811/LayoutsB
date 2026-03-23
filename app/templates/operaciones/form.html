@@ -724,6 +724,147 @@
       transform: translateY(6px);
     }
   }
+
+  /* ── MINI TABLE ──────────────────────────────── */
+  .mini-table-wrap {
+    overflow-x: auto;
+    margin-bottom: 10px;
+  }
+
+  .mini-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+  }
+
+  .mini-table thead tr {
+    background: #1E293B;
+  }
+
+  .mini-table thead th {
+    padding: 8px 10px;
+    font-size: .71rem;
+    font-weight: 500;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    text-align: left;
+  }
+
+  .mini-table tbody tr {
+    border-bottom: 1px solid #F1F5F9;
+  }
+
+  .mini-table tbody td {
+    padding: 4px 4px;
+  }
+
+  .mini-inp {
+    width: 100%;
+    padding: 6px 9px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: .82rem;
+    color: var(--text);
+    background: var(--card);
+    outline: none;
+    transition: border-color .13s;
+  }
+
+  .mini-inp:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, .12);
+  }
+
+  .btn-del-mini {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    border: none;
+    background: var(--danger-s);
+    color: var(--danger);
+    cursor: pointer;
+    font-size: .85rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .13s;
+  }
+
+  .btn-del-mini:hover {
+    background: var(--danger);
+    color: #fff;
+  }
+
+  .btn-add-mini {
+    margin-top: 6px;
+    padding: 6px 14px;
+    background: var(--card);
+    border: 1.5px dashed var(--border);
+    border-radius: var(--r-s);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .82rem;
+    color: var(--text-2);
+    cursor: pointer;
+    transition: all .13s;
+  }
+
+  .btn-add-mini:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-s);
+  }
+
+  /* ── FREE PASTE ──────────────────────────────── */
+  .free-paste-wrap textarea {
+    width: 100%;
+    padding: 10px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-s);
+    font-family: 'DM Mono', monospace;
+    font-size: .82rem;
+    color: var(--text);
+    background: #FAFBFF;
+    outline: none;
+    resize: vertical;
+    transition: border-color .15s, box-shadow .15s;
+  }
+
+  .free-paste-wrap textarea:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .12);
+    background: var(--card);
+  }
+
+  .free-paste-wrap textarea::placeholder {
+    color: var(--text-3);
+    font-size: .78rem;
+  }
+
+  .btn-parse {
+    margin-top: 8px;
+    padding: 7px 16px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-s);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .83rem;
+    font-weight: 500;
+    color: var(--text-2);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .13s;
+  }
+
+  .btn-parse:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-s);
+  }
 </style>
 
 <!-- ── TOAST RACK ──────────────────────────────── -->
@@ -778,20 +919,66 @@
 
   <div class="paste-area">
     <label>
-      Pegar cuentas masivas
+      Carga masiva
       <span
         style="font-weight:400; text-transform:none; letter-spacing:0; font-size:.76rem; color:var(--text-3); margin-left:6px;">
-        — nombre, cuenta (16-18 dígitos) y monto, en cualquier orden
+        — pega columnas directamente desde Excel en cada campo
       </span>
     </label>
-    <textarea id="pegarCuentas" rows="3"
-      placeholder="JUAN PEREZ TORRES   180012345678901234   3500&#10;4152300012345678 MARIA LOPEZ GOMEZ 1200.50"></textarea>
+
+    <div class="mini-table-wrap">
+      <table class="mini-table" id="miniTabla">
+        <thead>
+          <tr>
+            <th>NOMBRE</th>
+            <th>CLABE</th>
+            <th>MONTO</th>
+            <th>CONCEPTO</th>
+            <th style="width:36px;"></th>
+          </tr>
+        </thead>
+        <tbody id="miniTablaBody">
+          <tr class="mini-row">
+            <td><input type="text" class="mini-inp" data-col="nombre" placeholder="JUAN PEREZ TORRES"></td>
+            <td><input type="text" class="mini-inp" data-col="cuenta" placeholder="012345678901234567" maxlength="18">
+            </td>
+            <td><input type="text" class="mini-inp" data-col="importe" placeholder="0.00"></td>
+            <td><input type="text" class="mini-inp" data-col="concepto" placeholder="NOM 1"></td>
+            <td><button class="btn-del-mini" onclick="this.closest('tr').remove()">×</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="btn-add-mini" id="btnAddMiniRow">+ Agregar fila</button>
+    </div>
+
+    <div class="free-paste-wrap">
+      <label
+        style="display:block; font-size:.74rem; font-weight:600; color:var(--text-2); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; margin-top:14px;">
+        O pega texto con formato
+        <span
+          style="font-weight:400; text-transform:none; letter-spacing:0; font-size:.76rem; color:var(--text-3); margin-left:6px;">
+          — NOMBRE: X / CLAVE: X / MONTO: X / MOTIVO: X (un bloque por registro)
+        </span>
+      </label>
+      <textarea id="pegarCuentas" rows="5"
+        placeholder="NOMBRE: ERICK&#10;BANCO: STP&#10;MONTO: $650&#10;CLAVE: 646180402313672188&#10;MOTIVO: Terminal MERCADO PAGO&#10;&#10;NOMBRE: MARIA LOPEZ&#10;CLAVE: 012345678901234567&#10;MONTO: 1200"></textarea>
+      <button class="btn-parse" id="btnParsearTexto">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"
+          width="14" height="14">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0l-3.75-3.75M17.25 21L21 17.25" />
+        </svg>
+        Interpretar y cargar en tabla
+      </button>
+    </div>
+
     <div id="cuentasNoRegistradas"></div>
-    <button class="btn-process" id="procesarCuentas">
+
+    <button class="btn-process" id="procesarCuentas" style="margin-top:12px;">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
-      Agregar cuentas
+      Agregar cuentas al layout
     </button>
   </div>
 </div>
@@ -939,24 +1126,180 @@
       this.value = this.value.replace(/\D/g, "");
     });
 
+
+    /* ── MINI TABLA ───────────────────────────── */
+    function crearMiniRow(datos = {}) {
+      const tr = document.createElement("tr");
+      tr.className = "mini-row";
+      const cols = ["nombre", "cuenta", "importe", "concepto"];
+      const placeholders = {
+        nombre: "JUAN PEREZ TORRES",
+        cuenta: "012345678901234567",
+        importe: "0.00",
+        concepto: "NOM 1"
+      };
+
+      cols.forEach(col => {
+        const td = document.createElement("td");
+        const inp = document.createElement("input");
+        inp.type = "text";
+        inp.className = "mini-inp";
+        inp.dataset.col = col;
+        inp.placeholder = placeholders[col] || "";
+        if (col === "cuenta") inp.maxLength = 18;
+        if (col === "nombre") {
+          inp.addEventListener("input", function () {
+            this.value = this.value.toUpperCase();
+          });
+        }
+
+        // ✅ Pegar columna completa desde Excel
+        inp.addEventListener("paste", function (e) {
+          e.preventDefault();
+          const texto = (e.clipboardData || window.clipboardData).getData("text");
+          const lineas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+          if (lineas.length <= 1) {
+            this.value = col === "nombre" ? lineas[0]?.toUpperCase() || "" : lineas[0] || "";
+            return;
+          }
+
+          const tbody = document.getElementById("miniTablaBody");
+          const todasLasFilas = Array.from(tbody.querySelectorAll("tr.mini-row"));
+          const filaActual = this.closest("tr");
+          let idxActual = todasLasFilas.indexOf(filaActual);
+
+          lineas.forEach((val, i) => {
+            let fila = todasLasFilas[idxActual + i];
+            if (!fila) {
+              fila = crearMiniRow();
+              tbody.appendChild(fila);
+              todasLasFilas.push(fila);
+            }
+            const celda = fila.querySelector(`input[data-col="${col}"]`);
+            if (celda) celda.value = col === "nombre" ? val.toUpperCase() : val;
+          });
+        });
+
+        if (datos[col]) inp.value = col === "nombre" ? String(datos[col]).toUpperCase() : datos[col];
+        td.appendChild(inp);
+        tr.appendChild(td);
+      });
+
+      const tdX = document.createElement("td");
+      const btnX = document.createElement("button");
+      btnX.className = "btn-del-mini";
+      btnX.textContent = "×";
+      btnX.onclick = () => tr.remove();
+      tdX.appendChild(btnX);
+      tr.appendChild(tdX);
+      return tr;
+    }
+
+    document.getElementById("btnAddMiniRow")?.addEventListener("click", () => {
+      document.getElementById("miniTablaBody").appendChild(crearMiniRow());
+    });
+
+    /* ── PARSEAR TEXTO LIBRE ─────────────────── */
+    document.getElementById("btnParsearTexto")?.addEventListener("click", () => {
+      const texto = document.getElementById("pegarCuentas").value.trim();
+      if (!texto) { toast("El textarea está vacío", "error"); return; }
+
+      const mapaColumnas = {
+        "nombre": "nombre", "name": "nombre", "beneficiario": "nombre",
+        "clave": "cuenta", "clabe": "cuenta", "cuenta": "cuenta",
+        "monto": "importe", "importe": "importe", "amount": "importe",
+        "motivo": "concepto", "concepto": "concepto",
+        "descripcion": "concepto", "referencia": "concepto",
+        "banco": null, "bank": null,
+      };
+
+      const bloques = texto.split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
+      if (!bloques.length) { toast("No se encontraron registros", "error"); return; }
+
+      let cargados = 0;
+      const tbody = document.getElementById("miniTablaBody");
+
+      bloques.forEach(bloque => {
+        const lineas = bloque.split(/\n/).map(l => l.trim()).filter(Boolean);
+        const reg = { nombre: "", cuenta: "", importe: "", concepto: "" };
+
+        lineas.forEach(linea => {
+          const match = linea.match(/^([^:]+):\s*(.+)$/);
+          if (match) {
+            const clave = match[1].trim().toLowerCase();
+            let valor = match[2].trim();
+            const col = mapaColumnas[clave];
+            if (col === null) return;
+            if (col) {
+              if (col === "importe") valor = valor.replace(/[$,]/g, "").trim();
+              if (col === "nombre") valor = valor.toUpperCase();
+              reg[col] = valor;
+            }
+            return;
+          }
+
+          const partes = linea.split(/\s+/);
+          partes.forEach(p => {
+            if (/^\d{16,18}$/.test(p) && !reg.cuenta) reg.cuenta = p;
+            else if (/^\$?\d+([.,]\d{1,2})?$/.test(p) && !reg.importe) {
+              reg.importe = p.replace(/[$,]/g, "");
+            }
+          });
+        });
+
+        if (reg.cuenta) {
+          const filasExistentes = Array.from(tbody.querySelectorAll("tr.mini-row"));
+          const filaVacia = filasExistentes.find(f =>
+            !f.querySelector("[data-col='cuenta']")?.value.trim()
+          );
+          const fila = filaVacia || crearMiniRow();
+          if (!filaVacia) tbody.appendChild(fila);
+          fila.querySelector("[data-col='nombre']").value = reg.nombre;
+          fila.querySelector("[data-col='cuenta']").value = reg.cuenta;
+          fila.querySelector("[data-col='importe']").value = reg.importe;
+          fila.querySelector("[data-col='concepto']").value = reg.concepto;
+          cargados++;
+        }
+      });
+
+      if (cargados > 0) {
+        toast(`${cargados} registro(s) cargados en la tabla`);
+        document.getElementById("pegarCuentas").value = "";
+      } else {
+        toast("No se encontraron CLABEs válidas en el texto", "error");
+      }
+    });
+
     /* ── PEGAR CUENTAS ────────────────────────── */
     document.getElementById("procesarCuentas")?.addEventListener("click", async () => {
       if (!layoutActivo) { toast("Selecciona un layout primero", "error"); return; }
-      const texto = document.getElementById("pegarCuentas").value;
-      const filas = texto.split("\n").map(f => f.trim()).filter(Boolean);
-      const registros = filas.map(interpretarLinea);
-      if (!registros.length) return;
+
+      const filas = document.querySelectorAll("#miniTablaBody tr.mini-row");
+      const registros = [];
+
+      filas.forEach(fila => {
+        const nombre = fila.querySelector("[data-col='nombre']")?.value.trim() || "";
+        const cuenta = fila.querySelector("[data-col='cuenta']")?.value.trim() || "";
+        const importe = fila.querySelector("[data-col='importe']")?.value.trim() || "";
+        const concepto = fila.querySelector("[data-col='concepto']")?.value.trim() || "";
+        if (cuenta) registros.push({ nombre, cuenta, importe, concepto });
+      });
+
+      if (!registros.length) { toast("Agrega al menos una fila con CLABE", "error"); return; }
 
       const res = await fetch("/operaciones/api/buscar-cuentas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ registros })
       });
+
       const data = await res.json();
+
       data.encontrados.forEach(b => {
         const esStp = layoutsActivos[layoutActivo]?.nombre?.toLowerCase().includes("stp");
         if (esStp) {
-          const clabe = String(b.clabe || b.cuenta_abono || "").trim();
+          const clabe = String(b.clabe || "").trim();
           if (clabe.length !== 18 || !/^\d{18}$/.test(clabe)) {
             toast(`CLABE inválida para '${b.beneficiario}' — STP requiere 18 dígitos`, "error");
             return;
@@ -965,14 +1308,18 @@
         agregarFilaLayout(layoutActivo, b);
       });
 
-      cuentasPendientes = data.no_encontrados; // ✅ actualizar pendientes
-      renderPendientes();                       // ✅ redibujar siempre
+      cuentasPendientes = data.no_encontrados;
+      renderPendientes();
 
       if (cuentasPendientes.length === 0) {
         toast(`${data.encontrados.length} registro(s) agregado(s)`);
-        document.getElementById("pegarCuentas").value = "";
+        const tbody = document.getElementById("miniTablaBody");
+        tbody.innerHTML = "";
+        tbody.appendChild(crearMiniRow());
       }
     });
+
+
 
     /* ── ORIGEN → OPCIONES ───────────────────── */
     document.getElementById("origen")?.addEventListener("change", async function () {
@@ -1123,6 +1470,8 @@
       document.getElementById("buscarBeneficiario").value = "";
       document.getElementById("resultadosBeneficiario").innerHTML = "";
       document.getElementById("pegarCuentas").value = "";
+      const tbody = document.getElementById("miniTablabody");
+      if (tbody) { tbody.innerHTML = ""; tbody.appendChild(crearMiniRow()); }
       document.getElementById("cuentasNoRegistradas").innerHTML = "";
       document.getElementById("origen").value = "";
       document.getElementById("opcion").innerHTML = '<option value="">Selecciona banco primero</option>';
@@ -1390,17 +1739,6 @@
       if (!e.target.closest(".ctrl-field")) document.getElementById("resultadosBeneficiario").innerHTML = "";
     });
 
-    /* ── INTERPRETAR LÍNEA PEGADA ────────────── */
-    function interpretarLinea(linea) {
-      const partes = linea.trim().split(/\s+/);
-      let cuenta = "", importe = "", nombre = [];
-      partes.forEach(p => {
-        if (/^\d{16,18}$/.test(p)) cuenta = p;
-        else if (/^\d+(\.\d{1,2})?$/.test(p)) importe = p;
-        else nombre.push(p);
-      });
-      return { cuenta, nombre: nombre.join(" "), importe };
-    }
 
   });
 </script>

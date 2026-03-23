@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from app.db import get_db
 from app.models import CatBeneficiario, CatCuentaBeneficiario, CatInstitucionBancaria
-from app.services.services import obtener_institucion_por_cuenta
+from app.routers.services.services import obtener_institucion_por_cuenta
 import re
 from fastapi.templating import Jinja2Templates
 
