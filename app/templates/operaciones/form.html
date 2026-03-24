@@ -997,15 +997,30 @@
       </div>
       <div class="modal-body">
         <label
-          style="font-size:.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px;">Nombre
-          completo</label>
+          style="font-size:.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px;">
+          Nombre completo
+        </label>
         <input type="text" id="nuevoNombre" class="form-control mb-3" placeholder="Ej. JUAN CARLOS PÉREZ TORRES"
           style="text-transform:uppercase;">
+
         <label
-          style="font-size:.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px;">CLABE
-          / Número de cuenta</label>
-        <input type="text" id="nuevoNumeroCuenta" class="form-control" placeholder="18 dígitos" inputmode="numeric"
+          style="font-size:.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px;">
+          CLABE / Número de cuenta
+        </label>
+        <input type="text" id="nuevoNumeroCuenta" class="form-control mb-3" placeholder="18 dígitos" inputmode="numeric"
           style="font-family:'DM Mono',monospace;">
+
+        <label
+          style="font-size:.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px;">
+          Monto
+        </label>
+        <input type="text" id="nuevoMonto" class="form-control mb-3" placeholder="Ej. 7,000.50" inputmode="decimal">
+
+        <label
+          style="font-size:.78rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px;">
+          Concepto
+        </label>
+        <input type="text" id="nuevoConcepto" class="form-control" placeholder="Ej. PAGO NOMINA">
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -1062,6 +1077,8 @@
         const r = cuentasPendientes[0];
         document.getElementById("nuevoNumeroCuenta").value = r.cuenta;
         document.getElementById("nuevoNombre").value = r.nombre;
+        document.getElementById("nuevoMonto").value = r.importe || "";       // ✅
+        document.getElementById("nuevoConcepto").value = r.concepto || "";
         modal?.show();
       };
       card.appendChild(btn);
@@ -1096,6 +1113,10 @@
         const nuevo = await res.json();
         modal?.hide();
 
+        // ✅ Agregar monto y concepto al objeto
+        nuevo.importe = document.getElementById("nuevoMonto").value.replace(/,/g, "") || "";
+        nuevo.concepto = document.getElementById("nuevoConcepto").value.trim() || "";
+
         cuentasPendientes.shift(); // ✅ quitar el que se acaba de registrar
         renderPendientes();        // ✅ redibujar el cuadro
 
@@ -1124,6 +1145,22 @@
     });
     document.getElementById("nuevoNumeroCuenta")?.addEventListener("input", function () {
       this.value = this.value.replace(/\D/g, "");
+    });
+
+
+    // ✅ Formato monto en modal
+    document.getElementById("nuevoMonto")?.addEventListener("blur", function () {
+      let val = this.value.replace(/,/g, "");
+      if (!isNaN(val) && val !== "") {
+        this.value = parseFloat(val).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      }
+    });
+
+    document.getElementById("nuevoMonto")?.addEventListener("focus", function () {
+      this.value = this.value.replace(/,/g, "");
     });
 
 
@@ -1470,7 +1507,7 @@
       document.getElementById("buscarBeneficiario").value = "";
       document.getElementById("resultadosBeneficiario").innerHTML = "";
       document.getElementById("pegarCuentas").value = "";
-      const tbody = document.getElementById("miniTablabody");
+      const tbody = document.getElementById("miniTablaBody");
       if (tbody) { tbody.innerHTML = ""; tbody.appendChild(crearMiniRow()); }
       document.getElementById("cuentasNoRegistradas").innerHTML = "";
       document.getElementById("origen").value = "";

@@ -241,7 +241,7 @@ async def buscar_cuentas(data: dict, db: Session = Depends(get_db)):
                     "cuenta": r.get("cuenta"),
                     "nombre": r.get("nombre", ""),
                     "importe": r.get("importe", ""),
-                    "concepto": reg_original.get("concepto", ""),
+                    "concepto": r.get("concepto", ""),
                 }
             )
 
