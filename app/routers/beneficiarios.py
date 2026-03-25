@@ -174,24 +174,14 @@ def api_banco(prefijo: str, db: Session = Depends(get_db)):
 @router.post("/api/crear")
 def crear_api(data: dict = Body(...), db: Session = Depends(get_db)):
 
-    # Validar duplicado
-    if (
+    cuenta_existente = (
         db.query(CatCuentaBeneficiario)
         .filter(
             CatCuentaBeneficiario.numero_cuenta == data["numero_cuenta"],
             CatCuentaBeneficiario.activo == True,
         )
         .first()
-    ):
-        # raise HTTPException(status_code=400, detail="La cuenta ya existe")
-        cuenta_existente = (
-            db.query(CatCuentaBeneficiario)
-            .filter(
-                CatCuentaBeneficiario.numero_cuenta == data["numero_cuenta"],
-                CatCuentaBeneficiario.activo == True,
-            )
-            .first()
-        )
+    )
 
     # ✅ SI YA EXISTE → regresar sin error
     if cuenta_existente:
@@ -202,12 +192,7 @@ def crear_api(data: dict = Body(...), db: Session = Depends(get_db)):
             "clabe_o_tarjeta": cuenta_existente.numero_cuenta,
         }
 
-    beneficiario = CatBeneficiario(
-        nombre=data["nombre"]
-        .upper()
-        .strip()
-        # rfc=data.get("rfc")
-    )
+    beneficiario = CatBeneficiario(nombre=data["nombre"].upper().strip())
 
     db.add(beneficiario)
     db.flush()
