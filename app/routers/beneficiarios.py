@@ -183,7 +183,24 @@ def crear_api(data: dict = Body(...), db: Session = Depends(get_db)):
         )
         .first()
     ):
-        raise HTTPException(status_code=400, detail="La cuenta ya existe")
+        # raise HTTPException(status_code=400, detail="La cuenta ya existe")
+        cuenta_existente = (
+            db.query(CatCuentaBeneficiario)
+            .filter(
+                CatCuentaBeneficiario.numero_cuenta == data["numero_cuenta"],
+                CatCuentaBeneficiario.activo == True,
+            )
+            .first()
+        )
+
+    # ✅ SI YA EXISTE → regresar sin error
+    if cuenta_existente:
+        return {
+            "id": cuenta_existente.beneficiario.id_beneficiario,
+            "beneficiario": cuenta_existente.beneficiario.nombre,
+            "clabe": cuenta_existente.numero_cuenta,
+            "clabe_o_tarjeta": cuenta_existente.numero_cuenta,
+        }
 
     beneficiario = CatBeneficiario(
         nombre=data["nombre"]

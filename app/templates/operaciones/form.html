@@ -949,6 +949,13 @@
         </tbody>
       </table>
       <button class="btn-add-mini" id="btnAddMiniRow">+ Agregar fila</button>
+      <button class="btn-process" id="procesarCuentas" style="margin-top:12px;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Agregar cuentas al layout
+      </button>
     </div>
 
     <div class="free-paste-wrap">
@@ -1114,7 +1121,7 @@
         modal?.hide();
 
         // ✅ Agregar monto y concepto al objeto
-        nuevo.importe = document.getElementById("nuevoMonto").value.replace(/,/g, "") || "";
+        nuevo.importe = document.getElementById("nuevoMonto").value.replace(/[$,]/g, "");
         nuevo.concepto = document.getElementById("nuevoConcepto").value.trim() || "";
 
         cuentasPendientes.shift(); // ✅ quitar el que se acaba de registrar
@@ -1161,6 +1168,21 @@
 
     document.getElementById("nuevoMonto")?.addEventListener("focus", function () {
       this.value = this.value.replace(/,/g, "");
+    });
+
+
+    document.getElementById("nuevoMonto")?.addEventListener("input", function () {
+      // ❌ eliminar $
+      this.value = this.value.replace(/\$/g, "");
+
+      // ❌ solo números y punto
+      this.value = this.value.replace(/[^\d.]/g, "");
+
+      // ❌ evitar múltiples puntos
+      const partes = this.value.split(".");
+      if (partes.length > 2) {
+        this.value = partes[0] + "." + partes[1];
+      }
     });
 
 
@@ -1332,7 +1354,8 @@
       filas.forEach(fila => {
         const nombre = fila.querySelector("[data-col='nombre']")?.value.trim() || "";
         const cuenta = fila.querySelector("[data-col='cuenta']")?.value.trim() || "";
-        const importe = fila.querySelector("[data-col='importe']")?.value.trim() || "";
+        let importe = fila.querySelector("[data-col='importe']")?.value.trim() || "";
+        importe = importe.replace(/[$,]/g, "");
         const concepto = fila.querySelector("[data-col='concepto']")?.value.trim() || "";
         if (cuenta) registros.push({ nombre, cuenta, importe, concepto });
       });
@@ -1565,12 +1588,27 @@
         }
         if (c.nombre_logico === "importe") {
           inp.placeholder = "0.00";
+
+          inp.addEventListener("input", function () {
+            this.value = this.value.replace(/\$/g, "");
+            this.value = this.value.replace(/[^\d.]/g, "");
+
+            const partes = this.value.split(".");
+            if (partes.length > 2) {
+              this.value = partes[0] + "." + partes[1];
+            }
+          });
+
           inp.addEventListener("blur", function () {
             let val = this.value.replace(/,/g, "");
             if (!isNaN(val) && val !== "") {
-              this.value = parseFloat(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+              this.value = parseFloat(val).toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              });
             }
           });
+
           inp.addEventListener("focus", function () {
             this.value = this.value.replace(/,/g, "");
           });
@@ -1592,6 +1630,12 @@
         if (["beneficiario", "clabe", "rfc", "correo", "celular", "secuencia", "codigo_banco", "clave_banco", "institucion_contraparte", "banco_receptor"].includes(c.nombre_logico)) { inp.readOnly = true; }
         if (datos?.[c.nombre_logico]) {
           let val = datos[c.nombre_logico];
+
+          // ✅ LIMPIAR MONTO SI ES IMPORTE
+          if (c.nombre_logico === "importe") {
+            val = String(val).replace(/[$,]/g, "");
+          }
+
           if (c.nombre_logico === "beneficiario") val = String(val).toUpperCase();
           inp.value = val;
         }
