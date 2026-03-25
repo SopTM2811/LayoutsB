@@ -5,7 +5,6 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from app.db import get_db
 from app.models import CatBeneficiario, CatCuentaBeneficiario, CatInstitucionBancaria
-from app.routers.services.services import obtener_institucion_por_cuenta
 import re
 from fastapi.templating import Jinja2Templates
 
@@ -88,14 +87,14 @@ def crear(
         )
 
     # Obtener banco
-    banco = obtener_institucion_por_cuenta(db, numero_cuenta)
-    if not banco:
-        raise HTTPException(status_code=400, detail="Banco no válido")
+    # banco = obtener_institucion_por_cuenta(db, numero_cuenta)
+    # if not banco:
+    #    raise HTTPException(status_code=400, detail="Banco no válido")
 
     cuenta = CatCuentaBeneficiario(
         id_beneficiario=beneficiario.id_beneficiario,
-        id_institucion=banco["id_institucion"],
-        tipo_cuenta=tipo_cuenta,
+        # id_institucion=banco["id_institucion"],
+        # tipo_cuenta=tipo_cuenta,
         numero_cuenta=numero_cuenta,
     )
     db.add(cuenta)
@@ -196,10 +195,6 @@ def crear_api(data: dict = Body(...), db: Session = Depends(get_db)):
     db.add(beneficiario)
     db.flush()
 
-    banco = obtener_institucion_por_cuenta(db, data["numero_cuenta"])
-    if not banco:
-        raise HTTPException(status_code=400, detail="Banco no válido")
-
     cuenta = CatCuentaBeneficiario(
         id_beneficiario=beneficiario.id_beneficiario,
         numero_cuenta=data["numero_cuenta"],
@@ -210,10 +205,7 @@ def crear_api(data: dict = Body(...), db: Session = Depends(get_db)):
 
     return {
         "id": beneficiario.id_beneficiario,
-        "nombre": f'{data["numero_cuenta"]} - {beneficiario.nombre}',
         "beneficiario": beneficiario.nombre,
-        # "rfc": beneficiario.rfc,
         "clabe": data["numero_cuenta"],
         "clabe_o_tarjeta": data["numero_cuenta"],
-        "banco_receptor": banco["id_institucion"],
     }

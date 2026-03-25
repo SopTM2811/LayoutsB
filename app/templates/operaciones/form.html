@@ -1237,8 +1237,10 @@
       document.getElementById("miniTablaBody").appendChild(crearMiniRow());
     });
 
-    /* ── PARSEAR TEXTO LIBRE ─────────────────── */
-    document.getElementById("btnParsearTexto")?.addEventListener("click", () => {
+    /* ── PARSEAR TEXTO LIBRE → DIRECTO AL LAYOUT ─────────────────── */
+    document.getElementById("btnParsearTexto")?.addEventListener("click", async () => {
+      if (!layoutActivo) { toast("Selecciona un layout primero", "error"); return; }
+
       const texto = document.getElementById("pegarCuentas").value.trim();
       if (!texto) { toast("El textarea está vacío", "error"); return; }
 
@@ -1254,8 +1256,7 @@
       const bloques = texto.split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
       if (!bloques.length) { toast("No se encontraron registros", "error"); return; }
 
-      let cargados = 0;
-      const tbody = document.getElementById("miniTablaBody");
+      const registros = [];
 
       bloques.forEach(bloque => {
         const lineas = bloque.split(/\n/).map(l => l.trim()).filter(Boolean);
@@ -1275,7 +1276,6 @@
             }
             return;
           }
-
           const partes = linea.split(/\s+/);
           partes.forEach(p => {
             if (/^\d{16,18}$/.test(p) && !reg.cuenta) reg.cuenta = p;
@@ -1286,27 +1286,41 @@
         });
 
         if (reg.cuenta) {
-          const filasExistentes = Array.from(tbody.querySelectorAll("tr.mini-row"));
-          const filaVacia = filasExistentes.find(f =>
-            !f.querySelector("[data-col='cuenta']")?.value.trim()
-          );
-          const fila = filaVacia || crearMiniRow();
-          if (!filaVacia) tbody.appendChild(fila);
-          fila.querySelector("[data-col='nombre']").value = reg.nombre;
-          fila.querySelector("[data-col='cuenta']").value = reg.cuenta;
-          fila.querySelector("[data-col='importe']").value = reg.importe;
-          fila.querySelector("[data-col='concepto']").value = reg.concepto;
-          cargados++;
+          // ✅ Validar 18 dígitos
+          if (reg.cuenta.length !== 18 || !/^\d{18}$/.test(reg.cuenta)) {
+            toast(`CLABE inválida: '${reg.cuenta}' — debe tener 18 dígitos`, "error");
+            return;
+          }
+          registros.push(reg);
         }
       });
 
-      if (cargados > 0) {
-        toast(`${cargados} registro(s) cargados en la tabla`);
+      if (!registros.length) { toast("No se encontraron CLABEs válidas", "error"); return; }
+
+      // ✅ Buscar en DB
+      const res = await fetch("/operaciones/api/buscar-cuentas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ registros })
+      });
+
+      const data = await res.json();
+
+      // ✅ Encontrados → directo al layout
+      data.encontrados.forEach(b => agregarFilaLayout(layoutActivo, b));
+
+      // ✅ No encontrados → modal para registrar
+      cuentasPendientes = data.no_encontrados;
+      renderPendientes();
+
+      if (cuentasPendientes.length === 0) {
+        toast(`${data.encontrados.length} registro(s) agregado(s) al layout`);
         document.getElementById("pegarCuentas").value = "";
-      } else {
-        toast("No se encontraron CLABEs válidas en el texto", "error");
       }
     });
+
+
+
 
     /* ── PEGAR CUENTAS ────────────────────────── */
     document.getElementById("procesarCuentas")?.addEventListener("click", async () => {
